@@ -217,7 +217,7 @@ export default function RecipeConverter() {
             <div className="md:w-1/2">
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm p-8">
                 <Image
-                  src="/placeholder.svg?height=300&width=300"
+                  src="/bread.jpg?height=300&width=300"
                   alt="Recipe conversion illustration"
                   width={300}
                   height={300}
