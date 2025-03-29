@@ -1,5 +1,3 @@
-import { stringify } from "querystring";
-
 interface ConversionOptions {
   utensilType: string;
   nutsAreWhole: boolean;
