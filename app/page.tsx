@@ -1,33 +1,45 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Loader2, Upload, CloudRain } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useToast } from "@/hooks/use-toast"
-import { recognizeRecipe } from "@/lib/ocr"
-import { convertRecipe } from "@/lib/converter"
-import { getHumidity } from "@/lib/weather"
-import Image from "next/image"
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Upload, CloudRain } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { useToast } from "@/hooks/use-toast";
+//import { recognizeRecipe } from "@/lib/ocr";
+import { convertRecipe } from "@/lib/converter";
+import { getHumidity } from "@/lib/weather";
+import Image from "next/image";
+import GoogleTranslate from "@/lib/translate";
+import VoiceInput from "@/lib/voice";
+import axios from "axios";
 
 export default function RecipeConverter() {
-  const [recipeText, setRecipeText] = useState("")
-  const [convertedRecipe, setConvertedRecipe] = useState("")
-  const [isConverting, setIsConverting] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [humidity, setHumidity] = useState(null)
-  const [isLoadingHumidity, setIsLoadingHumidity] = useState(false)
-  const [utensilType, setUtensilType] = useState("standard")
-  const [nutsAreWhole, setNutsAreWhole] = useState(true)
-  const { toast } = useToast()
-  const [locationInput, setLocationInput] = useState("")
+  const [recipeText, setRecipeText] = useState("");
+  const [convertedRecipe, setConvertedRecipe] = useState("");
+  const [isConverting, setIsConverting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [humidity, setHumidity] = useState(null);
+  const [isLoadingHumidity, setIsLoadingHumidity] = useState(false);
+  const [utensilType, setUtensilType] = useState("standard");
+  const [nutsAreWhole, setNutsAreWhole] = useState(true);
+  const { toast } = useToast();
+  const [locationInput, setLocationInput] = useState("");
+  const [text, setText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [image, setImage] = useState(null);
 
   const handleTextConvert = async () => {
     if (!recipeText.trim()) {
@@ -35,82 +47,94 @@ export default function RecipeConverter() {
         title: "Recipe text is empty",
         description: "Please enter a recipe to convert.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsConverting(true)
+    setIsConverting(true);
     try {
-      const result = await convertRecipe(recipeText, { utensilType, nutsAreWhole, humidity })
-      setConvertedRecipe(result)
+      const result = await convertRecipe(recipeText, {
+        utensilType,
+        nutsAreWhole,
+        humidity,
+      });
+      setConvertedRecipe(result);
     } catch (error) {
       toast({
         title: "Conversion failed",
-        description: error.message || "Failed to convert recipe. Please try again.",
+        description:
+          error.message || "Failed to convert recipe. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsConverting(false)
+      setIsConverting(false);
     }
-  }
+  };
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
     if (!file.type.includes("image")) {
       toast({
         title: "Invalid file type",
         description: "Please upload an image file.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsUploading(true)
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
     try {
-      const extractedText = await recognizeRecipe(file)
-      setRecipeText(extractedText)
+      const response = await axios.post("http://localhost:5000", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setImageUrl(response.data.image_url);
       toast({
         title: "Image processed",
-        description: "Recipe text extracted successfully. You can now convert it to grams.",
-      })
+        description:
+          "Recipe text extracted successfully. You can now convert it to grams.",
+      });
     } catch (error) {
-      toast({
-        title: "Image processing failed",
-        description: error.message || "Failed to extract text from image. Please try again.",
-        variant: "destructive",
-      })
+      console.error("Error uploading image:", error);
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
 
   const fetchHumidity = async () => {
-    setIsLoadingHumidity(true)
+    setIsLoadingHumidity(true);
     try {
-      const humidityData = await getHumidity(locationInput)
-      setHumidity(humidityData)
+      const humidityData = await getHumidity(locationInput);
+      setHumidity(humidityData);
       toast({
         title: "Humidity data fetched",
         description: `Current humidity: ${humidityData}%`,
-      })
+      });
     } catch (error) {
       toast({
         title: "Failed to fetch humidity",
-        description: error.message || "Could not get humidity data. Please try again.",
+        description:
+          error.message || "Could not get humidity data. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoadingHumidity(false)
+      setIsLoadingHumidity(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#f5efe7]">
       <header className="py-6 px-4 border-b border-[#e5d7c3]">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-serif text-[#8b7b6b]">Recipe to Grams</h1>
+          <h1 className="text-3xl font-serif text-[#8b7b6b]">
+            Recipe to Grams
+          </h1>
+          <h1>My Multilingual Page</h1>
+          <GoogleTranslate />
           <nav className="hidden md:flex space-x-8">
             <a href="#" className="text-[#8b7b6b] hover:text-[#6d5d4b]">
               Home
@@ -128,13 +152,20 @@ export default function RecipeConverter() {
 
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
-          <h2 className="text-5xl font-serif text-[#8b7b6b] mb-6">Recipe to Grams Converter</h2>
+          <h2 className="text-5xl font-serif text-[#8b7b6b] mb-6">
+            Recipe to Grams Converter
+          </h2>
           <p className="text-[#8b7b6b] max-w-2xl mx-auto mb-10">
-            Transform your recipes with precise gram measurements for perfect results every time.
+            Transform your recipes with precise gram measurements for perfect
+            results every time.
           </p>
           <Button
             className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full px-8 py-6"
-            onClick={() => document.getElementById("converter")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() =>
+              document
+                .getElementById("converter")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
           >
             Get Started
           </Button>
@@ -143,7 +174,9 @@ export default function RecipeConverter() {
 
       <section id="services" className="py-16 px-4 bg-[#f0e9e0]">
         <div className="container mx-auto">
-          <h2 className="text-4xl font-serif text-[#8b7b6b] text-center mb-16">Our Services</h2>
+          <h2 className="text-4xl font-serif text-[#8b7b6b] text-center mb-16">
+            Our Services
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
@@ -151,13 +184,20 @@ export default function RecipeConverter() {
                 <div className="w-24 h-24 bg-[#f5efe7] rounded-full flex items-center justify-center mx-auto mb-6">
                   <span className="text-3xl text-[#8b7b6b]">📝</span>
                 </div>
-                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">Text Conversion</h3>
+                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">
+                  Text Conversion
+                </h3>
                 <p className="text-[#8b7b6b] mb-6">
-                  Enter your recipe text and get precise gram measurements instantly.
+                  Enter your recipe text and get precise gram measurements
+                  instantly.
                 </p>
                 <Button
                   className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full"
-                  onClick={() => document.getElementById("converter")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() =>
+                    document
+                      .getElementById("converter")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                 >
                   Convert Now
                 </Button>
@@ -169,13 +209,20 @@ export default function RecipeConverter() {
                 <div className="w-24 h-24 bg-[#f5efe7] rounded-full flex items-center justify-center mx-auto mb-6">
                   <span className="text-3xl text-[#8b7b6b]">📷</span>
                 </div>
-                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">Image Conversion</h3>
+                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">
+                  Image Conversion
+                </h3>
                 <p className="text-[#8b7b6b] mb-6">
-                  Upload a photo of your recipe and we'll extract and convert it for you.
+                  Upload a photo of your recipe and we'll extract and convert it
+                  for you.
                 </p>
                 <Button
                   className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full"
-                  onClick={() => document.getElementById("converter")?.scrollIntoView({ behavior: "smooth" })}
+                  onClick={() =>
+                    document
+                      .getElementById("converter")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                 >
                   Upload Image
                 </Button>
@@ -187,9 +234,16 @@ export default function RecipeConverter() {
                 <div className="w-24 h-24 bg-[#f5efe7] rounded-full flex items-center justify-center mx-auto mb-6">
                   <span className="text-3xl text-[#8b7b6b]">🌧️</span>
                 </div>
-                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">Humidity Adjustment</h3>
-                <p className="text-[#8b7b6b] mb-6">Get humidity-adjusted measurements for perfect baking results.</p>
-                <Button className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full" onClick={fetchHumidity}>
+                <h3 className="text-xl font-serif text-[#8b7b6b] mb-3">
+                  Humidity Adjustment
+                </h3>
+                <p className="text-[#8b7b6b] mb-6">
+                  Get humidity-adjusted measurements for perfect baking results.
+                </p>
+                <Button
+                  className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full"
+                  onClick={fetchHumidity}
+                >
                   Check Humidity
                 </Button>
               </div>
@@ -202,17 +256,23 @@ export default function RecipeConverter() {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row gap-12">
             <div className="md:w-1/2">
-              <h2 className="text-3xl font-serif text-[#8b7b6b] mb-6">Get More Than Just Recipes</h2>
+              <h2 className="text-3xl font-serif text-[#8b7b6b] mb-6">
+                Get More Than Just Recipes
+              </h2>
               <p className="text-[#8b7b6b] mb-6">
-                Our Recipe to Grams Converter transforms your favorite recipes into precise gram measurements, ensuring
-                consistent results every time. Whether you're a professional baker or a home cook, our tool helps you
-                achieve perfection with every dish.
+                Our Recipe to Grams Converter transforms your favorite recipes
+                into precise gram measurements, ensuring consistent results
+                every time. Whether you're a professional baker or a home cook,
+                our tool helps you achieve perfection with every dish.
               </p>
               <p className="text-[#8b7b6b] mb-6">
-                We account for different utensil sizes across regions and even adjust for humidity levels to give you
-                the most accurate measurements possible.
+                We account for different utensil sizes across regions and even
+                adjust for humidity levels to give you the most accurate
+                measurements possible.
               </p>
-              <Button className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full">Learn More</Button>
+              <Button className="bg-[#d4c4b0] text-[#5c4f41] hover:bg-[#c5b5a1] rounded-full">
+                Learn More
+              </Button>
             </div>
             <div className="md:w-1/2">
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm p-8">
@@ -233,8 +293,16 @@ export default function RecipeConverter() {
         <div className="container mx-auto">
           <Card className="border-0 shadow-sm bg-white rounded-2xl overflow-hidden">
             <CardContent className="p-8">
-              <h2 className="text-3xl font-serif text-[#8b7b6b] text-center mb-10">Convert Your Recipe</h2>
-
+              <h2 className="text-3xl font-serif text-[#8b7b6b] text-center mb-10">
+                Convert Your Recipe
+              </h2>
+              <div>
+                <h1>Voice Input Test</h1>
+                <VoiceInput
+                  onTextRecognized={(recognizedText) => setText(recognizedText)}
+                />
+                <p>Recognized Text: {text}</p>
+              </div>
               <Tabs defaultValue="text" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-8 bg-[#f5efe7]">
                   <TabsTrigger
@@ -289,14 +357,19 @@ export default function RecipeConverter() {
                           <Upload className="h-10 w-10 text-[#8b7b6b]" />
                         )}
                         <span className="mt-2 text-sm text-[#8b7b6b]">
-                          {isUploading ? "Processing image..." : "Click to upload or drag and drop"}
+                          {isUploading
+                            ? "Processing image..."
+                            : "Click to upload or drag and drop"}
                         </span>
                       </Label>
                     </div>
 
                     {recipeText && (
                       <div className="mt-4 space-y-2">
-                        <Label htmlFor="extracted-text" className="text-[#8b7b6b]">
+                        <Label
+                          htmlFor="extracted-text"
+                          className="text-[#8b7b6b]"
+                        >
                           Extracted Text
                         </Label>
                         <Textarea
@@ -313,27 +386,46 @@ export default function RecipeConverter() {
                 <div className="mt-8 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <Label htmlFor="utensil-type" className="text-[#8b7b6b] text-lg">
+                      <Label
+                        htmlFor="utensil-type"
+                        className="text-[#8b7b6b] text-lg"
+                      >
                         Utensil Type
                       </Label>
-                      <Select value={utensilType} onValueChange={setUtensilType}>
-                        <SelectTrigger id="utensil-type" className="border-[#d4c4b0]">
+                      <Select
+                        value={utensilType}
+                        onValueChange={setUtensilType}
+                      >
+                        <SelectTrigger
+                          id="utensil-type"
+                          className="border-[#d4c4b0]"
+                        >
                           <SelectValue placeholder="Select utensil type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="standard">US Standard Cups & Spoons</SelectItem>
-                          <SelectItem value="metric">Metric Cups & Spoons</SelectItem>
-                          <SelectItem value="uk">UK Imperial Cups & Spoons</SelectItem>
+                          <SelectItem value="standard">
+                            US Standard Cups & Spoons
+                          </SelectItem>
+                          <SelectItem value="metric">
+                            Metric Cups & Spoons
+                          </SelectItem>
+                          <SelectItem value="uk">
+                            UK Imperial Cups & Spoons
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-[#8b7b6b]">
-                        Different regions use different sized measuring cups and spoons
+                        Different regions use different sized measuring cups and
+                        spoons
                       </p>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="nuts-whole" className="text-[#8b7b6b] text-lg">
+                        <Label
+                          htmlFor="nuts-whole"
+                          className="text-[#8b7b6b] text-lg"
+                        >
                           Nuts are whole
                         </Label>
                         <Switch
@@ -344,7 +436,8 @@ export default function RecipeConverter() {
                         />
                       </div>
                       <p className="text-xs text-[#8b7b6b]">
-                        Toggle off if your recipe uses chopped nuts (affects density calculations)
+                        Toggle off if your recipe uses chopped nuts (affects
+                        density calculations)
                       </p>
                     </div>
                   </div>
@@ -376,7 +469,8 @@ export default function RecipeConverter() {
                       </Button>
                     </div>
                     <p className="text-xs text-[#8b7b6b]">
-                      Enter your location or leave blank to use automatic detection
+                      Enter your location or leave blank to use automatic
+                      detection
                     </p>
                     {humidity !== null && (
                       <div className="p-2 bg-[#f5efe7] rounded border border-[#d4c4b0] text-[#8b7b6b]">
@@ -402,11 +496,16 @@ export default function RecipeConverter() {
 
                   {convertedRecipe && (
                     <div className="space-y-4 mt-8">
-                      <Label htmlFor="converted-recipe" className="text-[#8b7b6b] text-xl">
+                      <Label
+                        htmlFor="converted-recipe"
+                        className="text-[#8b7b6b] text-xl"
+                      >
                         Converted Recipe (in grams)
                       </Label>
                       <div className="p-6 rounded-lg bg-[#f5efe7] border border-[#d4c4b0]">
-                        <pre className="whitespace-pre-wrap font-mono text-sm text-[#5c4f41]">{convertedRecipe}</pre>
+                        <pre className="whitespace-pre-wrap font-mono text-sm text-[#5c4f41]">
+                          {convertedRecipe}
+                        </pre>
                       </div>
                     </div>
                   )}
@@ -420,11 +519,16 @@ export default function RecipeConverter() {
       <section className="py-16 px-4 bg-[#f5efe7]">
         <div className="container mx-auto text-center">
           <div className="bg-[#d4c4b0] rounded-full p-12 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-serif text-[#5c4f41] mb-4">Talk to Our Staff</h2>
+            <h2 className="text-3xl font-serif text-[#5c4f41] mb-4">
+              Talk to Our Staff
+            </h2>
             <p className="text-[#5c4f41] mb-6">
-              Have questions about recipe conversion? Our team is here to help you achieve perfect results.
+              Have questions about recipe conversion? Our team is here to help
+              you achieve perfect results.
             </p>
-            <Button className="bg-[#8b7b6b] text-white hover:bg-[#6d5d4b] rounded-full">Contact Us</Button>
+            <Button className="bg-[#8b7b6b] text-white hover:bg-[#6d5d4b] rounded-full">
+              Contact Us
+            </Button>
           </div>
         </div>
       </section>
@@ -434,7 +538,9 @@ export default function RecipeConverter() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-xl font-serif mb-4">Recipe to Grams</h3>
-              <p className="text-sm opacity-80">Precise recipe conversion for perfect results every time.</p>
+              <p className="text-sm opacity-80">
+                Precise recipe conversion for perfect results every time.
+              </p>
             </div>
             <div>
               <h4 className="font-medium mb-4">Quick Links</h4>
@@ -471,7 +577,9 @@ export default function RecipeConverter() {
                   placeholder="Your email"
                   className="rounded-l-full bg-[#7a6a5a] border-[#7a6a5a] text-white placeholder:text-white/60"
                 />
-                <Button className="rounded-r-full bg-[#d4c4b0] text-[#5c4f41]">Subscribe</Button>
+                <Button className="rounded-r-full bg-[#d4c4b0] text-[#5c4f41]">
+                  Subscribe
+                </Button>
               </div>
             </div>
           </div>
@@ -481,6 +589,5 @@ export default function RecipeConverter() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

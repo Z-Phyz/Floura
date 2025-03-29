@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "clothingapp-437719",
+  "private_key_id": "989838d53bb7acdd980e62141b7aa925f4c4ea23",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCNlZv39NQ0z/nD\nR3t2cUqzi6UCN7TDombnjSLXOH8e6BI/eDFyVCpoLzxvFce5MIrgcngArwUj2r5E\n7FTTErlarqvDqe0cCF2i1bA8M4NCOkWVJEVcQTYu5T+T1m4yJcUkKWUAXB5aH0Zf\nCBjAORgKGkjeJw1VHPs7L2Z3h/zCpeAAOywL95UBIwswKWjNzuSjs5xjBZb0WW2y\nyx1Tvi95m0P/YfQYdlCYX9XHuzLuc+362N/GSrH/XfOVNxd3FZCs+Hgy1cJcCGj1\nrB+plFQ3Uel2delBMPy7/+oSIi+Vb2UiURB5IV0el5lZ+pj/GRGtcd4S5c42SggA\npsbKo+ybAgMBAAECgf9Q1psMIpMG6bgxRx8MVqMlixXWWPgHZd0GAroMfWAXcBRQ\nfiUSofuUgLkrXm7VIwzSxIi/2y4+ynuDNBc6bKESpahsjxj9Ex8OBJ7FwKOxAem4\nvdIxr7TAEc8QbzN7w7+hEKwaXdOhS+S3Xb1urdU2miCrYUtmIqX5pOwG/h3TBF45\nStI76RsbJ0zLA79r9R5XpJo4cOj6t2wgOuS+2tRgu8kN/1mteLDfh8eAw+rEWS0v\n67ec73HNbU3OySwNGDv68A9AzYnE8DrsrqewOH5VnAFEBxY1XHleJKMMCk4LMH4F\nlapMhlWBmC0CCj1bgyycKIbvaea0ohIzj5DrPskCgYEAw8yYRIPc4KvoAzvB7Cwt\nXmBylLJ7ypIt7kbAx3L9OVvwzEGQx/GyepWlimKoq4QmppdOvV6EhGh60vi4BmRH\nWFMv9ytEgGssu+S6Y+CyzrgkkUGwLqVgk3JTpqGTDs88X69SkGv5tXVELjoacuXL\nQnNY66AC7ieNgZ9BH+jDXbMCgYEAuR3BLwCL86WiPOIMDKbRU4evd2+ozbDDKwu8\np6dlwXUgZy6Un3BYWoPyErT5221XArqmCF3fw8unrzu4BfmGyZZ9ajf49QsrqKLC\nA4cg1oy3Z5qW/Z/966jrmTfpSz7ECN+9Xq+0aW58jM5ZJbHR/Iy1KuoWPrewXThM\nqdY9UXkCgYEAwARSQ8cJgzAzXZBqEoIUkByH4fnT2wpWjvnGLxM+8NSQps+Z++u1\nO/CsIrW0clgsS23Ro3chAHUyFtoiJuqK6TzTqlM9X687dJzQigifcok2G1nPPT+k\nIZWaIa0M+hYUQEZA8y9g+Sqija8fpxRirK1QQ+ttVD9nz/ntNSzhA28CgYBnZzeC\nCcwjTWJSn/IbHxPOlPxuuvCP9S0P3n6DJ/6vEb4H5P0gEqFH7mxKBs2KxIjV/WzB\nP66+sAP63mDs9XVVJbromlt2hcbdbAzz64dsUS4hsTimc7hi6vivnYuzfFwEmPYu\n7fbY7d6kyJ8Db1DcwbxxPFEwt2rMp6YrOIEIAQKBgQCw7EaQ9wlFN1eL86boWDRX\ncaWf2+GcPG/7cVq6BlivaiFQ1Evd8Ev+MUImy7xv7PLtdKApiKNsAQ5m+oUblxth\nyIvc3yPoRl6qBAtf8LcRTKh/RNTUQ/fSo8Ax+XppmOsseomlMlmKbv4dUIKZ/GjD\n/PbKyyagUWdvM8bQ7eBDOA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bake-with@clothingapp-437719.iam.gserviceaccount.com",
+  "client_id": "110108420294025053948",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bake-with%40clothingapp-437719.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
