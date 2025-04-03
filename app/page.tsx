@@ -125,6 +125,7 @@ export default function RecipeConverter() {
       setIsLoadingHumidity(false);
     }
   };
+  const [recognizedText, setRecognizedText] = useState(""); 
 
   return (
     <div className="min-h-screen bg-[#f5efe7]">
@@ -296,27 +297,27 @@ export default function RecipeConverter() {
               <h2 className="text-3xl font-serif text-[#8b7b6b] text-center mb-10">
                 Convert Your Recipe
               </h2>
-              <div>
-                <h1>Voice Input Test</h1>
-                <VoiceInput
-                  onTextRecognized={(recognizedText) => setText(recognizedText)}
-                />
-                <p>Recognized Text: {text}</p>
-              </div>
+              
               <Tabs defaultValue="text" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8 bg-[#f5efe7]">
+                <TabsList className="grid w-full grid-cols-3 mb-8 bg-[#f5efe7] space-x-4">
                   <TabsTrigger
                     value="text"
-                    className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41]"
+                    className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41] mx-2"
                   >
                     Convert from Text
                   </TabsTrigger>
                   <TabsTrigger
                     value="image"
-                    className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41]"
+                    className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41] mx-2"
                   >
                     Convert from Image
                   </TabsTrigger>
+                  <TabsTrigger 
+                    value="voice" 
+                    className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41] mx-2"
+                    >
+                    Convert Using Your Voice
+                  </TabsTrigger> 
                 </TabsList>
 
                 <TabsContent value="text" className="space-y-6">
@@ -381,6 +382,20 @@ export default function RecipeConverter() {
                       </div>
                     )}
                   </div>
+                </TabsContent>
+                
+                <TabsContent value="voice" className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="recipe" className="text-[#8b7b6b]">
+                    Speak something, and we will convert it to text:
+                  </Label>
+                  <VoiceInput onTextRecognized={setRecognizedText} />
+                  {recognizedText && (
+                    <p>
+                      <strong>Recognized Text:</strong> {recognizedText}
+                    </p>
+                  )}
+                </div>
                 </TabsContent>
 
                 <div className="mt-8 space-y-8">
