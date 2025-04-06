@@ -9,10 +9,13 @@ from PIL import Image
 from google.genai import types
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
 
 BUCKET_NAME = "cookies_z"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/shivangipal/bake_with_ai/bakewith-899f8ae2d313.json"
-genai.configure(api_key="AIzaSyAGUMWqZGdAVqdik7YN0mYWXDQh1HwL2PQ")
+load_dotenv()  # Load from .env
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+genai.configure(api_key=os.getenv("API_KEY"))
 model = genai.GenerativeModel("gemini-2.0-flash")
 app = Flask(__name__)
 CORS(app)  # Allows React to communicate with 
@@ -37,7 +40,10 @@ def receive_data():
     data = request.json
     print("Received from React:", data)
     z=data['text']
-    response=model.generate_content("Convert the ingredients in grams and make sure you dont use indentations for bold words also return in a single line without any additional information"+z)
+    x=data['utensils']
+    y=str(data['nutsWhole'])
+    w=str(data['humidity'])
+    response=model.generate_content("Convert the ingredients in grams and make sure you dont use indentations for bold words or double asteriks also return in a single line without any additional information"+z+"take into account the humidity when calculating weight however if negligible dont mention it"+w+"if any nuts are whole or chopped where whole means true in calculating weigth too"+y+"and take in account the utensils used too"+x+"if you recieve anything other than a food item or recipe say enter a valid recipe")
     print(response)
     return jsonify(response.text)
 
@@ -59,11 +65,17 @@ def convert_image():
     print(data)
     image_path=data['text']
     image=get_base64_image(image_path)
+    x=data['utensils']
+    y=str(data['nutsWhole'])
+    w=str(data['humidity'])
     # Load the Gemini model
     # Generate a response
+    from mimetypes import guess_type
+    mime_type = guess_type(image_path)[0]  # e.g., 'image/jpeg'
+
     response = model.generate_content([
-        {"text": "Describe the contents of this image."},
-        {"inline_data": {"mime_type": "image/png", "data":image}}
+        {"text": "Convert the ingredients in grams and make sure you dont use indentations for bold words or double asteriks also return in a single line without any additional information take into account the humidity when calculating weight however if negligible dont mention it"+w+"if any nuts are whole or chopped where whole means true in calculating weigth too"+y+"and take in account the utensils used too"+x+"if you recieve anything other than a food item or recipe say enter a valid recipe"},
+        {"inline_data": {"mime_type": mime_type, "data":image}}
     ])
     return jsonify(response.text)
 

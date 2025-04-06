@@ -17,7 +17,11 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env*
+# Sensitive credentials
+*.env
+*.env.*
+*.json
+credentials/
 
 # vercel
 .vercel

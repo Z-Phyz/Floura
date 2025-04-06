@@ -176,9 +176,7 @@ export default function RecipeConverter() {
 
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
-          <h2 className="text-5xl font-serif text-[#8b7b6b] mb-6">
-            Recipe to Grams Converter
-          </h2>
+          <h2 className="text-5xl font-serif text-[#8b7b6b] mb-6">FLOURA</h2>
           <p className="text-[#8b7b6b] max-w-2xl mx-auto mb-10">
             Transform your recipes with precise gram measurements for perfect
             results every time.
