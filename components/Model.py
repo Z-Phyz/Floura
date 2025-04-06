@@ -11,7 +11,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 BUCKET_NAME = "cookies_z"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/Swarnim/Downloads/bakewith-899f8ae2d313.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/shivangipal/bake_with_ai/bakewith-899f8ae2d313.json"
 genai.configure(api_key="AIzaSyAGUMWqZGdAVqdik7YN0mYWXDQh1HwL2PQ")
 model = genai.GenerativeModel("gemini-2.0-flash")
 app = Flask(__name__)
