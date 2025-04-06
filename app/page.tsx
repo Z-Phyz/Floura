@@ -25,6 +25,7 @@ import Image from "next/image";
 import GoogleTranslate from "@/lib/translate";
 import VoiceInput from "@/lib/voice";
 import axios from "axios";
+import { convertRecipeImage } from "@/lib/image";
 
 export default function RecipeConverter() {
   const [recipeText, setRecipeText] = useState("");
@@ -40,6 +41,7 @@ export default function RecipeConverter() {
   const [text, setText] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [image, setImage] = useState(null);
+  const [recognizedText, setRecognizedText] = useState("");
 
   const handleTextConvert = async () => {
     if (!recipeText.trim()) {
@@ -88,11 +90,33 @@ export default function RecipeConverter() {
     const formData = new FormData();
     formData.append("image", file);
     try {
-      const response = await axios.post("http://localhost:5000", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post(
+        "http://localhost:5000/process",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       setImageUrl(response.data.image_url);
+      setIsConverting(true);
+      try {
+        const result = await convertRecipeImage(response.data.image_url, {
+          utensilType,
+          nutsAreWhole,
+          humidity,
+        });
+        setConvertedRecipe(result);
+      } catch (error) {
+        toast({
+          title: "Conversion failed",
+          description:
+            error.message || "Failed to convert recipe. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsConverting(false);
+      }
       toast({
         title: "Image processed",
         description:
@@ -125,7 +149,6 @@ export default function RecipeConverter() {
       setIsLoadingHumidity(false);
     }
   };
-  const [recognizedText, setRecognizedText] = useState(""); 
 
   return (
     <div className="min-h-screen bg-[#f5efe7]">
@@ -297,7 +320,7 @@ export default function RecipeConverter() {
               <h2 className="text-3xl font-serif text-[#8b7b6b] text-center mb-10">
                 Convert Your Recipe
               </h2>
-              
+
               <Tabs defaultValue="text" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-8 bg-[#f5efe7] space-x-4">
                   <TabsTrigger
@@ -312,12 +335,12 @@ export default function RecipeConverter() {
                   >
                     Convert from Image
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="voice" 
+                  <TabsTrigger
+                    value="voice"
                     className="data-[state=active]:bg-[#d4c4b0] data-[state=active]:text-[#5c4f41] mx-2"
-                    >
+                  >
                     Convert Using Your Voice
-                  </TabsTrigger> 
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="text" className="space-y-6">
@@ -383,19 +406,19 @@ export default function RecipeConverter() {
                     )}
                   </div>
                 </TabsContent>
-                
+
                 <TabsContent value="voice" className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="recipe" className="text-[#8b7b6b]">
-                    Speak something, and we will convert it to text:
-                  </Label>
-                  <VoiceInput onTextRecognized={setRecognizedText} />
-                  {recognizedText && (
-                    <p>
-                      <strong>Recognized Text:</strong> {recognizedText}
-                    </p>
-                  )}
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="recipe" className="text-[#8b7b6b]">
+                      Speak something, and we will convert it to text:
+                    </Label>
+                    <VoiceInput onTextRecognized={setRecipeText} />
+                    {recipeText && (
+                      <p>
+                        <strong>Recognized Text:</strong> {recipeText}
+                      </p>
+                    )}
+                  </div>
                 </TabsContent>
 
                 <div className="mt-8 space-y-8">

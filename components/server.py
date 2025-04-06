@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Set Google Cloud Storage credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "bake_with_ai/.next/clothingapp-437719-989838d53bb7.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] ="bake_with_ai/.next/clothingapp-437719-989838d53bb7.json"
 
 # Google Cloud Storage bucket name
 BUCKET_NAME = "bake_with_ai"

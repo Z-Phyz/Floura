@@ -1,6 +1,6 @@
 import { useState } from "react";
 export async function getHumidity(manualLocation?: string): Promise<number> {
-  const [name, setName] = useState("7BnjF7mNEDjYVyjIvOuBQFYbFzLWLRFD");
+  const API = "4d0c084481884bffa94212257243108";
   try {
     let locationQuery: string;
 
@@ -21,7 +21,7 @@ export async function getHumidity(manualLocation?: string): Promise<number> {
 
     // Make API call to WeatherAPI.com
     const response = await fetch(
-      `https://api.weatherapi.com/v1/current.json?key=${name}&q=${locationQuery}&aqi=no`
+      `https://api.weatherapi.com/v1/current.json?key=${API}&q=${locationQuery}&aqi=no`
     );
 
     if (!response.ok) {

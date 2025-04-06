@@ -4,20 +4,20 @@ interface ConversionOptions {
   humidity: number | null;
 }
 
-export async function convertRecipe(
-  recipeText: string,
+export async function convertRecipeImage(
+  imageUrl: string,
   options: ConversionOptions
 ) {
   console.log("✅ convertRecipe is running!");
-  console.log("🔹 Sending recipeText:", recipeText);
+  console.log("🔹 Sending recipeText:", imageUrl);
   console.log("🔹 Sending options:", options);
 
   try {
-    const response = await fetch("http://localhost:5000/convert", {
+    const response = await fetch("http://localhost:5000/convertz", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text: recipeText,
+        text: imageUrl,
         humidity: options["humidity"],
         utensils: options["utensilType"],
         nutsWhole: options["nutsAreWhole"],
